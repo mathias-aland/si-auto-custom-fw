@@ -13,7 +13,6 @@
 #include <math.h>
 
 #include "systick.h"
-#include "i2c_host/mssp1.h"
 #include "modbus.h"
 #include "globals.h"
 

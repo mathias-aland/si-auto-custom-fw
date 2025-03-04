@@ -4,12 +4,6 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <logicalFolder name="f1" displayName="i2c_host" projectFiles="true">
-        <itemPath>i2c_host/i2c_host_event_types.h</itemPath>
-        <itemPath>i2c_host/i2c_host_interface.h</itemPath>
-        <itemPath>i2c_host/i2c_host_types.h</itemPath>
-        <itemPath>i2c_host/mssp1.h</itemPath>
-      </logicalFolder>
       <itemPath>systick.h</itemPath>
       <itemPath>modbus.h</itemPath>
       <itemPath>rs232.h</itemPath>
