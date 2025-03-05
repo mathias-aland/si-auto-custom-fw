@@ -2299,46 +2299,42 @@ void main(void)
                     printf("Degas cycle complete.\r\n");
                     setMode(RUN_MODE_IDLE);
                 }
-                
-                
-                
-                if (degas_pulse_timer > 0)
-                {
-                    degas_pulse_timer--;
-                    
-                    if (degas_pulse_timer == 0)
-                    {
-                        if (ultrasonic_on)
-                        {
-                            degas_pulse_timer = settings.degas_pulse_off;
-                            ultrasonic_on = 0;
-                            setOutputs1(0x00, 0x20);
-                            printf("Ultrasonics OFF\r\n");
-                        }
-                        else
-                        {
-                            degas_pulse_timer = settings.degas_pulse_on;
-                            ultrasonic_on = 1;
-                            setOutputs1(0x20, 0x20);
-                            printf("Ultrasonics ON\r\n");
-                        }
-                    }
-                }
-                
-                // Blink status LED when in degas mode
-                if (elapsedTime & 0x1)
-                {
-                    setOutputs1(0x00, 0x02);
-                }
                 else
                 {
-                    setOutputs1(0x02, 0x02);
+                    // Check if it's time to toggle ultrasonics
+                    if (degas_pulse_timer > 0)
+                    {
+                        degas_pulse_timer--;
+
+                        if (degas_pulse_timer == 0)
+                        {
+                            if (ultrasonic_on)
+                            {
+                                degas_pulse_timer = settings.degas_pulse_off;
+                                ultrasonic_on = 0;
+                                setOutputs1(0x00, 0x20);
+                                printf("Ultrasonics OFF\r\n");
+                            }
+                            else
+                            {
+                                degas_pulse_timer = settings.degas_pulse_on;
+                                ultrasonic_on = 1;
+                                setOutputs1(0x20, 0x20);
+                                printf("Ultrasonics ON\r\n");
+                            }
+                        }
+                    }
+
+                    // Blink status LED when in degas mode
+                    if (elapsedTime & 0x1)
+                    {
+                        setOutputs1(0x00, 0x02);
+                    }
+                    else
+                    {
+                        setOutputs1(0x02, 0x02);
+                    }
                 }
-                
-                
-                
-                
-                
             }
             else if (run_mode == RUN_MODE_DRAIN)
             {
