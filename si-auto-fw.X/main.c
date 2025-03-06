@@ -119,6 +119,9 @@
 #define TEMP_INTERNAL   0
 #define TEMP_EXTERNAL   1
 
+#define SAVE_TIMEOUT    10  // Time betweeen last change and saving to EEPROM, (1-254 seconds)
+#define WLP_DELAY       5   // Time between WLP dry indication and lockout trigger (seconds)
+
 
 const uint8_t ntc_ext_table[] =    { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  
                                     0,  0,  0,  0,  0,  0,  0,  2,  3,  4,  6,  7,  8,  9,  10, 11, 
@@ -327,12 +330,13 @@ volatile uint8_t curr_status_page = STATUS_PAGE_MAIN;
 
 
 
-#define SAVE_TIMEOUT    10  // Time betweeen last change and saving to EEPROM, (1-254 seconds)
+
 
 bool savePend = false;
 
 uint32_t savePendTimer = 0;
 
+uint32_t wlpTimer = 0;
 
 typedef enum water_level_e
 {
@@ -909,9 +913,34 @@ uint16_t readInputs()
 bool lockoutCheck(void)
 {
     // Check water level
-    if ((settings.wlp_enable) && (inputState & (1 << INPUT_WLVL_BASE_BIT)))
+    if (settings.wlp_enable)
     {
-        return false;   // no water
+        // WLP enabled
+        if ((inputState & (1 << INPUT_WLVL_BASE_BIT)) && (inputState & (1 << INPUT_WLVL_TOP_BIT)))
+        {
+            // Top and bottom sensor dry, trigger lockout immediately
+            return false;
+        }
+        else if ((inputState & (1 << INPUT_WLVL_BASE_BIT)) || (inputState & (1 << INPUT_WLVL_TOP_BIT)))
+        {
+            // Top or bottom sensor dry
+            
+            if (SysTick_CheckElapsed(wlpTimer, WLP_DELAY * 1024))
+            {
+                // WLP delay elapsed, trigger lockout
+                return false;
+            }
+        }
+        else
+        {
+            // Both sensors wet, reset timer
+            wlpTimer = SysTick_GetTicks();
+        }
+    }
+    else
+    {
+        // WLP disabled, reset timer
+        wlpTimer = SysTick_GetTicks();
     }
     
     return true;
